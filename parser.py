@@ -33,4 +33,58 @@ The file follows the following format:
 See the file script for an example of the file format
 """
 def parse_file( fname, points, transform, screen, color ):
-    pass
+    f = open(fname, "r")
+    lines = f.read().split("\n")
+    f.close()
+    #print('starting')
+    i=0
+    while i < len(lines):
+        if lines[i] == "line":
+            i += 1
+            l = lines[i].split(' ')
+            add_edge(points, int(l[0]), int(l[1]), int(l[2]), int(l[3]), int(l[4]), int(l[5]))
+            i+=1
+        elif lines[i] == "ident":
+            i+=1
+            ident(transform)
+        elif lines[i] == "scale":
+            i+=1
+            l = lines[i].split(' ')
+            matrix_mult(make_scale(int(l[0]), int(l[1]), int(l[2])), transform)
+            i+=1
+        elif lines[i] == "move":
+            i+=1
+            l = lines[i].split(' ')
+            matrix_mult(make_translate(int(l[0]), int(l[1]), int(l[2])), transform)
+            i+=1
+        elif lines[i] == "rotate":
+            i +=1
+            l = lines[i].split(' ')
+            l[1] = int(l[1])
+            if l[0] == 'x':
+                matrix_mult(make_rotX(l[1]), transform)
+            elif l[0] == 'y':
+                matrix_mult(make_rotY(l[1]), transform)
+            else:
+                matrix_mult(make_rotZ(l[1]), transform)
+            i+=1
+        elif lines[i] == "apply":
+            matrix_mult(transform, points)
+            i+=1
+        elif lines[i] == "display":
+            for r in range(len(points)):
+				for c in range(len(points[0])):
+					points[r][c] = int(points[r][c])
+            clear_screen(screen)
+            draw_lines(points, screen, color)
+            display(screen)
+            i+=1
+        elif lines[i] == "save":
+            i+=1
+            clear_screen(screen)
+            draw_lines(points, screen, color)
+            save_extension(screen, lines[i].strip())
+            print('done')
+            i+=1
+        else:
+            break
